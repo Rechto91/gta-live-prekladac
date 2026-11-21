@@ -12,7 +12,7 @@ import kotlin.math.min
 import kotlin.math.sqrt
 
 /**
- * Lightweight native AudioRecord + Voice Activity Detection (VAD).
+ * Native AudioRecord + Voice Activity Detection (VAD).
  * Captures spoken English segments from TV audio, wraps them into 16kHz mono WAV,
  * and delivers them directly to Gemini so AI hears the actual speaker voice (male/female).
  */
@@ -25,11 +25,11 @@ class AudioVadRecorder(
         private const val SAMPLE_RATE = 16000
         private const val CHANNELS = 1
         private const val BITS_PER_SAMPLE = 16
-        private const val FRAME_SAMPLES = 1600 // 100 ms per frame
-        private const val PRE_ROLL_FRAMES = 3  // 300 ms pre-roll so word starts aren't cut off
-        private const val SILENCE_FRAMES_END = 7 // 700 ms pause ends segment
-        private const val MIN_SPEECH_FRAMES = 4  // 400 ms minimum segment
-        private const val MAX_SPEECH_FRAMES = 65 // 6.5 s max segment for low latency
+        private const val FRAME_SAMPLES = 1600
+        private const val PRE_ROLL_FRAMES = 3
+        private const val SILENCE_FRAMES_END = 7
+        private const val MIN_SPEECH_FRAMES = 4
+        private const val MAX_SPEECH_FRAMES = 65
     }
 
     @Volatile
@@ -158,7 +158,7 @@ class AudioVadRecorder(
                 onLevelChanged(0, false)
             }
         }.apply {
-            name = "GtaAudioVadThread"
+            name = "ViceAudioVadThread"
             start()
         }
     }
@@ -170,8 +170,7 @@ class AudioVadRecorder(
     }
 
     private fun emitWav(pcmData: ByteArray) {
-        val wav = buildWav(pcmData)
-        onSpeechSegmentReady(wav)
+        onSpeechSegmentReady(buildWav(pcmData))
     }
 
     private fun shortsToBytes(samples: ShortArray, count: Int): ByteArray {

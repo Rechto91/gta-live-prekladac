@@ -20,6 +20,106 @@ data class TranslationResult(
 
 class GeminiClient {
 
+    suspend fun translateText(
+        apiKey: String,
+        model: String,
+        targetLang: String,
+        englishText: String,
+        genderHint: SpeakerGender,
+        recentContext: List<String>
+    ): Result<TranslationResult> = withContext(Dispatchers.IO) {
+        try {
+            val langName = if (targetLang == "cs") "češtiny" else "slovenčiny"
+            val genderDirective = when (genderHint) {
+                SpeakerGender.MALE -> "Hovoriaci je MUŽ (Jason) – použi mužský rod (napr. 'išiel som', 'videl som') a vráť SPEAKER: M."
+                SpeakerGender.FEMALE -> "Hovoriaci je ŽENA (Lucia) – použi ženský rod (napr. 'išla som', 'videla som') a vráť SPEAKER: Z."
+                SpeakerGender.NEUTRAL -> "Odhadni z kontextu či hovorí muž (M), žena (Z) alebo neutrálne (U) a použi prirodzený rod."
+            }
+            val contextBlock = if (recentContext.isNotEmpty()) {
+                "Nedávne repliky:\n" + recentContext.joinToString("\n")
+            } else {
+                ""
+            }
+
+            val instruction = buildString {
+                append("Si profesionálny dabingový prekladač pre hru GTA VI (Vice City / Leonida). ")
+                append("Prelož vstupný text okamžite do živej, prirodzenej, hovorenej $langName (vrátane pouličného slangu), aby znel perfektne pri nahlas prečítaní. ")
+                append("$genderDirective ")
+                append("Odpovedaj VÝHRADNE v tomto 3-riadkovom formáte bez markdownu:\n")
+                append("SPEAKER: M alebo Z alebo U\n")
+                append("EN: <originálny text>\n")
+                append("TR: <prirodzený preklad do $langName>")
+                if (contextBlock.isNotBlank()) {
+                    append("\n\n$contextBlock")
+                }
+            }
+
+            val body = buildPayload(
+                instruction = instruction,
+                parts = JSONArray().put(JSONObject().put("text", englishText))
+            )
+
+            val rawResponse = postGenerateContent(apiKey, model, body)
+            val parsed = parseStructuredResponse(rawResponse, fallbackOriginal = englishText)
+            val finalGender = if (genderHint != SpeakerGender.NEUTRAL) genderHint else parsed.gender
+            Result.success(parsed.copy(gender = finalGender))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun translateSubtitleImage(
+        apiKey: String,
+        model: String,
+        targetLang: String,
+        jpegBytes: ByteArray,
+        recentContext: List<String>
+    ): Result<TranslationResult> = withContext(Dispatchers.IO) {
+        try {
+            val langName = if (targetLang == "cs") "češtiny" else "slovenčiny"
+            val contextBlock = if (recentContext.isNotEmpty()) {
+                "Nedávne titulky:\n" + recentContext.joinToString("\n")
+            } else {
+                ""
+            }
+
+            val instruction = buildString {
+                append("Si okamžitý prekladač herných titulkov z obrazovky televízora (GTA VI) do hovorenej $langName. ")
+                append("Prečítaj anglické titulky na obrázku. Ignoruj mapu, ikony, ovládacie tlačidlá a pozadie hry. ")
+                append("Ak na obrázku nie je žiadny čitateľný herný titulok alebo dialóg, odpovedz presne:\n")
+                append("SPEAKER: NONE\nEN: \nTR: \n\n")
+                append("Ak titulok nájdeš, prelož ho prirodzene a hovorovo do $langName (vrátane slangu), pripravený na prečítanie hlasom. ")
+                append("Ak je z kontextu jasné pohlavie postavy (napr. Jason = M, Lucia = Z), uveď M alebo Z, inak U. ")
+                append("Odpovedaj VÝHRADNE v tomto 3-riadkovom formáte bez markdownu:\n")
+                append("SPEAKER: M alebo Z alebo U\n")
+                append("EN: <prečítaný anglický titulok>\n")
+                append("TR: <prirodzený preklad do $langName>")
+                if (contextBlock.isNotBlank()) {
+                    append("\n\n$contextBlock")
+                }
+            }
+
+            val base64Img = Base64.encodeToString(jpegBytes, Base64.NO_WRAP)
+            val parts = JSONArray().apply {
+                put(JSONObject().put("text", "Prečítaj a prelož anglické titulky z tohto záberu obrazovky."))
+                put(
+                    JSONObject().put(
+                        "inlineData",
+                        JSONObject()
+                            .put("mimeType", "image/jpeg")
+                            .put("data", base64Img)
+                    )
+                )
+            }
+
+            val body = buildPayload(instruction = instruction, parts = parts)
+            val rawResponse = postGenerateContent(apiKey, model, body)
+            Result.success(parseStructuredResponse(rawResponse, fallbackOriginal = ""))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     suspend fun translateAudioWav(
         apiKey: String,
         model: String,
@@ -36,12 +136,12 @@ class GeminiClient {
             }
 
             val instruction = buildString {
-                append("Si okamžitý prekladač herných dialógov (napr. GTA VI) z angličtiny do hovorovej $langName. ")
+                append("Si okamžitý dabingový prekladač herných dialógov (GTA VI) z angličtiny do hovorovej $langName. ")
                 append("Vypočuj si priložený zvuk z televízora. Ignoruj hudbu, hluk motora, streľbu a nezrozumiteľný šum. ")
                 append("Ak v zvuku nie je žiadna zrozumiteľná anglická reč, odpovedz presne:\n")
                 append("SPEAKER: NONE\nEN: \nTR: \n\n")
-                append("Ak niekto rozpráva po anglicky, rozpoznaj podľa hlasu či hovorí muž (M), žena (Z) alebo neisté/viac (U). ")
-                append("Prelož reč prirodzene a hovorovo (vrátane slangu) a použij SPRÁVNY gramatický rod podľa pohlavia hovoriaceho (napr. 'išiel som' pre muža, 'išla som' pre ženu). ")
+                append("Ak niekto rozpráva po anglicky, rozpoznaj podľa hlasu či hovorí muž (M), žena (Z) alebo neisté (U). ")
+                append("Prelož reč prirodzene a hovorovo (vrátane slangu) so SPRÁVNYM gramatickým rodom podľa pohlavia hovoriaceho. ")
                 append("Odpovedaj VÝHRADNE v tomto 3-riadkovom formáte bez markdownu:\n")
                 append("SPEAKER: M alebo Z alebo U\n")
                 append("EN: <krátky anglický prepis>\n")
@@ -52,7 +152,6 @@ class GeminiClient {
             }
 
             val base64Audio = Base64.encodeToString(wavBytes, Base64.NO_WRAP)
-
             val parts = JSONArray().apply {
                 put(JSONObject().put("text", "Prelož anglický dialóg z tohto audio úryvku."))
                 put(
@@ -65,24 +164,7 @@ class GeminiClient {
                 )
             }
 
-            val body = JSONObject().apply {
-                put(
-                    "systemInstruction",
-                    JSONObject().put(
-                        "parts",
-                        JSONArray().put(JSONObject().put("text", instruction))
-                    )
-                )
-                put(
-                    "contents",
-                    JSONArray().put(
-                        JSONObject()
-                            .put("role", "user")
-                            .put("parts", parts)
-                    )
-                )
-            }
-
+            val body = buildPayload(instruction = instruction, parts = parts)
             val rawResponse = postGenerateContent(apiKey, model, body)
             Result.success(parseStructuredResponse(rawResponse, fallbackOriginal = ""))
         } catch (e: Exception) {
@@ -90,64 +172,34 @@ class GeminiClient {
         }
     }
 
-    suspend fun translateText(
-        apiKey: String,
-        model: String,
-        targetLang: String,
-        englishText: String,
-        recentContext: List<String>
-    ): Result<TranslationResult> = withContext(Dispatchers.IO) {
-        try {
-            val langName = if (targetLang == "cs") "češtiny" else "slovenčiny"
-            val contextBlock = if (recentContext.isNotEmpty()) {
-                "Predchádzajúce repliky pre kontext:\n" + recentContext.joinToString("\n")
-            } else {
-                ""
-            }
-
-            val instruction = buildString {
-                append("Si okamžitý prekladač herných dialógov (napr. GTA VI) z angličtiny do hovorovej $langName. ")
-                append("Prelož nasledujúcu anglickú vetu prirodzene vrátane slangu. ")
-                append("Podľa kontextu odhadni pohlavie hovoriaceho (M, Z alebo U). ")
-                append("Odpovedaj VÝHRADNE v tomto 3-riadkovom formáte bez markdownu:\n")
-                append("SPEAKER: M alebo Z alebo U\n")
-                append("EN: <originálny anglický text>\n")
-                append("TR: <prirodzený preklad do $langName>")
-                if (contextBlock.isNotBlank()) {
-                    append("\n\n$contextBlock")
-                }
-            }
-
-            val body = JSONObject().apply {
-                put(
-                    "systemInstruction",
-                    JSONObject().put(
-                        "parts",
-                        JSONArray().put(JSONObject().put("text", instruction))
-                    )
+    private fun buildPayload(instruction: String, parts: JSONArray): JSONObject {
+        return JSONObject().apply {
+            put(
+                "systemInstruction",
+                JSONObject().put(
+                    "parts",
+                    JSONArray().put(JSONObject().put("text", instruction))
                 )
-                put(
-                    "contents",
-                    JSONArray().put(
-                        JSONObject()
-                            .put("role", "user")
-                            .put(
-                                "parts",
-                                JSONArray().put(JSONObject().put("text", englishText))
-                            )
-                    )
+            )
+            put(
+                "contents",
+                JSONArray().put(
+                    JSONObject()
+                        .put("role", "user")
+                        .put("parts", parts)
                 )
-            }
-
-            val rawResponse = postGenerateContent(apiKey, model, body)
-            Result.success(parseStructuredResponse(rawResponse, fallbackOriginal = englishText))
-        } catch (e: Exception) {
-            Result.failure(e)
+            )
+            put(
+                "generationConfig",
+                JSONObject()
+                    .put("temperature", 0.25)
+                    .put("maxOutputTokens", 256)
+            )
         }
     }
 
     private fun postGenerateContent(apiKey: String, model: String, payload: JSONObject): String {
-        val cleanModel = model.trim().ifBlank { "gemini-3.5-flash-lite" }
+        val cleanModel = model.trim().ifBlank { "gemini-2.5-flash-lite" }
         val endpoint =
             "https://generativelanguage.googleapis.com/v1beta/models/$cleanModel:generateContent?key=${apiKey.trim()}"
         val conn = (URL(endpoint).openConnection() as HttpURLConnection).apply {
@@ -204,8 +256,7 @@ class GeminiClient {
         var enText = fallbackOriginal
         var trText = ""
 
-        val lines = raw.lines()
-        for (line in lines) {
+        for (line in raw.lines()) {
             val trimmed = line.trim()
             when {
                 trimmed.startsWith("SPEAKER:", ignoreCase = true) -> {

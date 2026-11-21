@@ -11,5 +11,6 @@ data class SubtitleItem(
     val gender: SpeakerGender,
     val translatedText: String,
     val originalText: String,
-    val timestamp: String
+    val timestamp: String,
+    val sourceTag: String = ""
 )

@@ -5,15 +5,19 @@
     android:layout_height="match_parent"
     android:background="@color/oled_black"
     android:orientation="vertical"
-    android:padding="14dp">
+    android:padding="12dp">
 
-    <!-- Top Header -->
+    <!-- Vice City Neon Header -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/bg_vice_header"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:paddingBottom="8dp">
+        android:paddingStart="14dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="10dp"
+        android:paddingBottom="10dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -21,14 +25,36 @@
             android:layout_weight="1"
             android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/tvAppTitle"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="GTA LIVE PREKLADAČ"
-                android:textColor="@color/text_primary"
-                android:textSize="17sp"
-                android:textStyle="bold" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/tvAppTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:letterSpacing="0.08"
+                    android:text="VICE VOICE"
+                    android:textColor="@color/text_primary"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/bg_badge_female"
+                    android:paddingStart="7dp"
+                    android:paddingTop="1dp"
+                    android:paddingEnd="7dp"
+                    android:paddingBottom="1dp"
+                    android:text="GTA VI"
+                    android:textColor="@color/accent_pink"
+                    android:textSize="10sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/tvStatus"
@@ -38,28 +64,28 @@
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:text="@string/status_ready"
-                android:textColor="@color/text_secondary"
-                android:textSize="12sp" />
+                android:textColor="@color/accent_cyan"
+                android:textSize="11sp" />
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnMode"
+            android:id="@+id/btnStopSpeech"
             style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="wrap_content"
+            android:layout_width="42dp"
             android:layout_height="40dp"
             android:layout_marginEnd="6dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
             android:minWidth="0dp"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:text="@string/mode_ai_audio"
-            android:textColor="@color/accent_cyan"
-            android:textSize="12sp"
-            app:strokeColor="@color/accent_cyan" />
+            android:padding="0dp"
+            android:text="🔇"
+            android:textSize="15sp"
+            app:strokeColor="@color/accent_orange" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSettings"
             style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="44dp"
+            android:layout_width="42dp"
             android:layout_height="40dp"
             android:insetLeft="0dp"
             android:insetRight="0dp"
@@ -71,15 +97,290 @@
             app:strokeColor="@color/surface_stroke" />
     </LinearLayout>
 
-    <!-- Live VU Meter + Threshold Bar -->
+    <!-- 3 Vice HUD Mode Tabs -->
     <LinearLayout
-        android:id="@+id/layoutAudioBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="8dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tabTextMode"
+            android:layout_width="0dp"
+            android:layout_height="38dp"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_tab_active"
+            android:gravity="center"
+            android:letterSpacing="0.04"
+            android:text="@string/tab_text"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tabCameraMode"
+            android:layout_width="0dp"
+            android:layout_height="38dp"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_tab_inactive"
+            android:gravity="center"
+            android:letterSpacing="0.04"
+            android:text="@string/tab_camera"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tabAudioMode"
+            android:layout_width="0dp"
+            android:layout_height="38dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_tab_inactive"
+            android:gravity="center"
+            android:letterSpacing="0.04"
+            android:text="@string/tab_audio"
+            android:textColor="@color/text_secondary"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- PANEL 1: Instant Text -> Slovak Speech -->
+    <LinearLayout
+        android:id="@+id/panelTextMode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:background="@drawable/bg_card"
         android:orientation="vertical"
-        android:padding="10dp">
+        android:padding="12dp">
+
+        <EditText
+            android:id="@+id/etInputText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_vice_input"
+            android:gravity="top|start"
+            android:hint="Napíš alebo vlož anglický text (napr. titulok z GTA VI)..."
+            android:inputType="textMultiLine|textCapSentences"
+            android:maxLines="4"
+            android:minLines="2"
+            android:padding="12dp"
+            android:textColor="@color/text_primary"
+            android:textColorHint="@color/text_secondary"
+            android:textSize="15sp" />
+
+        <!-- Voice Character Selector + Quick Actions -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/chipVoiceAuto"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/bg_badge_neutral"
+                android:gravity="center"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="AUTO"
+                android:textColor="@color/accent_amber"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/chipVoiceMale"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/bg_tab_inactive"
+                android:gravity="center"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="JASON (M)"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/chipVoiceFemale"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_tab_inactive"
+                android:gravity="center"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="LUCIA (Ž)"
+                android:textColor="@color/text_secondary"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/btnPasteTranslate"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_marginEnd="6dp"
+                android:background="@drawable/bg_pill"
+                android:gravity="center"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="VLOŽIŤ"
+                android:textColor="@color/accent_cyan"
+                android:textSize="11sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/btnClearInput"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/bg_tab_inactive"
+                android:gravity="center"
+                android:text="✕"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchAutoType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:checked="true"
+                android:text="Instant"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/btnTranslateText"
+                android:layout_width="0dp"
+                android:layout_height="46dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_vice_button"
+                android:gravity="center"
+                android:letterSpacing="0.05"
+                android:text="@string/btn_translate_speak"
+                android:textColor="@color/text_primary"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- PANEL 2: Live TV Camera Subtitle Scanner -->
+    <LinearLayout
+        android:id="@+id/panelCameraMode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/bg_card"
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:visibility="gone">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="168dp"
+            android:background="@color/oled_black">
+
+            <TextureView
+                android:id="@+id/cameraPreview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <!-- Subtitle Target Box Overlay -->
+            <View
+                android:id="@+id/viewScanReticle"
+                android:layout_width="match_parent"
+                android:layout_height="76dp"
+                android:layout_gravity="bottom"
+                android:layout_margin="10dp"
+                android:background="@drawable/bg_scan_frame" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top|start"
+                android:layout_margin="8dp"
+                android:background="#AA08050E"
+                android:paddingStart="8dp"
+                android:paddingTop="3dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="3dp"
+                android:text="NAMIER NA TITULKY V GTA VI"
+                android:textColor="@color/accent_cyan"
+                android:textSize="10sp"
+                android:textStyle="bold" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <CheckBox
+                android:id="@+id/cbCropSubtitles"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="Len spodný rámček"
+                android:textColor="@color/text_secondary"
+                android:textSize="12sp" />
+
+            <com.google.android.material.switchmaterial.SwitchMaterial
+                android:id="@+id/switchAutoScan"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Auto (3s)"
+                android:textColor="@color/accent_amber"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/btnScanSubtitle"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="4dp"
+            android:background="@drawable/bg_vice_button_cyan"
+            android:gravity="center"
+            android:letterSpacing="0.05"
+            android:text="@string/btn_scan_now"
+            android:textColor="@color/oled_black"
+            android:textSize="13sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- PANEL 3: Live TV Audio Listener -->
+    <LinearLayout
+        android:id="@+id/panelAudioMode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/bg_card"
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -91,7 +392,7 @@
                 android:id="@+id/tvVuLabel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Hlasitosť TV:"
+                android:text="TV Hlasitosť:"
                 android:textColor="@color/text_secondary"
                 android:textSize="11sp" />
 
@@ -138,24 +439,33 @@
                 android:max="60"
                 android:progress="18" />
 
-            <TextView
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMode"
+                style="@style/Widget.Material3.Button.OutlinedButton"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:text="Písmo"
-                android:textColor="@color/text_secondary"
-                android:textSize="11sp" />
-
-            <SeekBar
-                android:id="@+id/seekFontSize"
-                android:layout_width="90dp"
-                android:layout_height="wrap_content"
-                android:max="20"
-                android:progress="8" />
+                android:layout_height="34dp"
+                android:minWidth="0dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp"
+                android:text="@string/mode_ai_audio"
+                android:textColor="@color/accent_cyan"
+                android:textSize="11sp"
+                app:strokeColor="@color/accent_cyan" />
         </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnToggleListen"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="6dp"
+            android:backgroundTint="@color/accent_cyan"
+            android:text="@string/btn_start"
+            android:textColor="@color/oled_black"
+            android:textSize="14sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
-    <!-- Live Interim / Capturing Preview -->
+    <!-- Live Status / Processing Pill -->
     <TextView
         android:id="@+id/tvLivePreview"
         android:layout_width="match_parent"
@@ -165,49 +475,68 @@
         android:ellipsize="end"
         android:maxLines="2"
         android:paddingStart="14dp"
-        android:paddingTop="8dp"
+        android:paddingTop="7dp"
         android:paddingEnd="14dp"
-        android:paddingBottom="8dp"
-        android:text="Čakám na dialóg z televízora..."
-        android:textColor="@color/text_secondary"
-        android:textSize="13sp"
+        android:paddingBottom="7dp"
+        android:text="Pripravené..."
+        android:textColor="@color/accent_cyan"
+        android:textSize="12sp"
         android:visibility="gone" />
 
-    <!-- Subtitles List -->
+    <!-- Translated History Feed -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvSubtitles"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:clipToPadding="false"
-        android:paddingBottom="8dp" />
+        android:paddingBottom="6dp" />
 
-    <!-- Bottom Controls -->
+    <!-- Bottom Speech Control Strip -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/bg_card"
         android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingTop="6dp"
+        android:paddingEnd="12dp"
+        android:paddingBottom="6dp">
 
         <com.google.android.material.switchmaterial.SwitchMaterial
             android:id="@+id/switchTts"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
+            android:checked="true"
             android:text="@string/tts_label"
             android:textColor="@color/text_primary"
             android:textSize="13sp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnToggleListen"
+        <TextView
+            android:id="@+id/tvVoiceInfo"
             android:layout_width="0dp"
-            android:layout_height="54dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
             android:layout_weight="1"
-            android:backgroundTint="@color/accent_cyan"
-            android:text="@string/btn_start"
-            android:textColor="@color/oled_black"
-            android:textSize="15sp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:text="Rýchlosť: 1.05x"
+            android:textColor="@color/text_secondary"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/btnReplayLast"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:background="@drawable/bg_pill"
+            android:gravity="center"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="▶ ZNOVA"
+            android:textColor="@color/accent_pink"
+            android:textSize="11sp"
             android:textStyle="bold" />
     </LinearLayout>
 

@@ -8,10 +8,12 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 
-class SubtitleAdapter : RecyclerView.Adapter<SubtitleAdapter.ViewHolder>() {
+class SubtitleAdapter(
+    private val onReplayClick: (SubtitleItem) -> Unit
+) : RecyclerView.Adapter<SubtitleAdapter.ViewHolder>() {
 
     private val items = mutableListOf<SubtitleItem>()
-    var fontSizeSp: Float = 26f
+    var fontSizeSp: Float = 24f
         set(value) {
             field = value
             notifyDataSetChanged()
@@ -25,6 +27,7 @@ class SubtitleAdapter : RecyclerView.Adapter<SubtitleAdapter.ViewHolder>() {
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvSpeakerBadge: TextView = view.findViewById(R.id.tvSpeakerBadge)
         val tvTimestamp: TextView = view.findViewById(R.id.tvTimestamp)
+        val btnReplayItem: TextView = view.findViewById(R.id.btnReplayItem)
         val tvTranslated: TextView = view.findViewById(R.id.tvTranslated)
         val tvOriginal: TextView = view.findViewById(R.id.tvOriginal)
     }
@@ -38,20 +41,21 @@ class SubtitleAdapter : RecyclerView.Adapter<SubtitleAdapter.ViewHolder>() {
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = items[position]
         val ctx = holder.itemView.context
+        val tagSuffix = if (item.sourceTag.isNotBlank()) " • ${item.sourceTag}" else ""
 
         when (item.gender) {
             SpeakerGender.MALE -> {
-                holder.tvSpeakerBadge.text = "MUŽ"
+                holder.tvSpeakerBadge.text = "JASON • MUŽ$tagSuffix"
                 holder.tvSpeakerBadge.setBackgroundResource(R.drawable.bg_badge_male)
                 holder.tvSpeakerBadge.setTextColor(ContextCompat.getColor(ctx, R.color.accent_cyan))
             }
             SpeakerGender.FEMALE -> {
-                holder.tvSpeakerBadge.text = "ŽENA"
+                holder.tvSpeakerBadge.text = "LUCIA • ŽENA$tagSuffix"
                 holder.tvSpeakerBadge.setBackgroundResource(R.drawable.bg_badge_female)
                 holder.tvSpeakerBadge.setTextColor(ContextCompat.getColor(ctx, R.color.accent_pink))
             }
             SpeakerGender.NEUTRAL -> {
-                holder.tvSpeakerBadge.text = "POSTAVA"
+                holder.tvSpeakerBadge.text = "VICE$tagSuffix"
                 holder.tvSpeakerBadge.setBackgroundResource(R.drawable.bg_badge_neutral)
                 holder.tvSpeakerBadge.setTextColor(ContextCompat.getColor(ctx, R.color.accent_amber))
             }
@@ -67,18 +71,23 @@ class SubtitleAdapter : RecyclerView.Adapter<SubtitleAdapter.ViewHolder>() {
         } else {
             holder.tvOriginal.visibility = View.GONE
         }
+
+        holder.btnReplayItem.setOnClickListener { onReplayClick(item) }
+        holder.tvTranslated.setOnClickListener { onReplayClick(item) }
     }
 
     override fun getItemCount(): Int = items.size
 
     fun addItem(item: SubtitleItem) {
         items.add(item)
-        if (items.size > 120) {
+        if (items.size > 150) {
             items.removeAt(0)
             notifyItemRemoved(0)
         }
         notifyItemInserted(items.size - 1)
     }
+
+    fun getLastItem(): SubtitleItem? = items.lastOrNull()
 
     fun clearAll() {
         val count = items.size

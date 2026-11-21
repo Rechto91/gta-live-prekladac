@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">GTA Live Prekladač</string>
-    <string name="status_ready">Pripravené. Polož mobil k TV a stlač ŠTART.</string>
-    <string name="status_need_key">Najprv zadaj Gemini API kľúč v Nastaveniach (⚙).</string>
+    <string name="app_name">Vice Voice • GTA VI</string>
+    <string name="status_ready">LEONIDA HUD PRIPRAVENÝ • SK REČ AKTÍVNA</string>
+    <string name="status_need_key">Zadaj Gemini API kľúč v Nastaveniach (⚙)</string>
+    <string name="tab_text">TEXT → REČ</string>
+    <string name="tab_camera">TV KAMERA</string>
+    <string name="tab_audio">TV ZVUK</string>
+    <string name="btn_translate_speak">PRELOŽIŤ A PREHRAŤ (SK)</string>
     <string name="btn_start">ŠTART POČÚVANIA</string>
     <string name="btn_stop">ZASTAVIŤ</string>
+    <string name="btn_scan_now">SKENOVAŤ TV TITULKY</string>
     <string name="mode_ai_audio">AI Sluch (M/Ž)</string>
     <string name="mode_android_stt">Rýchly STT</string>
-    <string name="tts_label">Slúchadlá</string>
-    <string name="settings_title">Nastavenia prekladača</string>
+    <string name="tts_label">SK Reč</string>
+    <string name="settings_title">Vice Voice • Nastavenia</string>
 </resources>
